@@ -36,7 +36,7 @@ namespace tempWinForms
 
                                 while (_numbers.Contains(str[--j + i])) { }
 
-                                res += (char)((int.Parse(str.Substring(++j + i, Math.Abs(j))) + (int)'a') / (int)cryptKey.Offset);
+                                res += (char)((int.Parse(str.Substring(++j + i, Math.Abs(j))) + 'a') / (cryptKey.Offset - 30));
                             }
                             else if (cryptKey.SeporetorPositions.ToString() == "b")
                             {
@@ -44,7 +44,7 @@ namespace tempWinForms
 
                                 while (++j + i < str.Length && _numbers.Contains(str[j + i])) { }
 
-                                res += (char)((int.Parse(str.Substring((i + 1), j - 1)) + (int)'b') / (int)cryptKey.Offset);
+                                res += (char)((int.Parse(str.Substring(i + 1, j - 1)) + 'b') / (cryptKey.Offset - 30));
                             }
                         }
 
@@ -88,11 +88,11 @@ namespace tempWinForms
                     {
                         res += cryptKey.Seporetor;
 
-                        res +=( (int)str[i + j] * (int)cryptKey.Offset - (int)'b');
+                        res += (int)str[i + j] * ((int)cryptKey.Offset - 30) - (int)'b';
                     }
                     else if (cryptKey.SeporetorPositions.ToString() == "a")
                     {
-                        res += ((int)str[i + j] * (int)cryptKey.Offset - (int)'a');
+                        res += (int)str[i + j] * ((int)cryptKey.Offset - 30) - (int)'a';
 
                         res += cryptKey.Seporetor;
                     }
@@ -154,10 +154,6 @@ namespace tempWinForms
             public char Offset => _offset;
         }
 
-        // PseudoCryptKey
-
-
-
         class SeporetorPositions
         {
             public SeporetorPositions(Random random)
@@ -171,10 +167,7 @@ namespace tempWinForms
                     ('b' == seporetorPosition) ? SeporetorPosition.b : throw new Exception("не позиция");
             }
 
-            public override string ToString()
-            {
-                return SeporPosition.ToString();
-            }
+            public override string ToString() => SeporPosition.ToString();
 
             public SeporetorPosition SeporPosition { set; get; }
 
@@ -191,7 +184,7 @@ namespace tempWinForms
 
             var badValuesWhithNombers = badValues.Concat(_numbers).ToArray();
 
-            int length = random.Next(1, 5);
+            int length = random.Next(2, 5);
 
             StringBuilder sbuilder = new StringBuilder();
 
@@ -199,7 +192,11 @@ namespace tempWinForms
 
             for (int x = 1; x < length - 1; ++x)
             {
-                sbuilder.Append(GenerateRandomChar(random, badValues));
+                sbuilder.Append(GenerateRandomChar(random, badValuesWhithNombers));
+
+                sbuilder.Append((int)GenerateRandomChar(random, badValues) * ((int)cryptKey.Offset - 30) - (int)'a');
+
+                sbuilder.Append(GenerateRandomChar(random, badValuesWhithNombers));
             }
 
             sbuilder.Append(GenerateRandomChar(random, badValuesWhithNombers));
