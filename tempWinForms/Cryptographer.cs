@@ -36,7 +36,7 @@ namespace tempWinForms
 
                                 while (_numbers.Contains(str[--j + i])) { }
 
-                                res += (char)int.Parse(str.Substring(++j + i, Math.Abs(j)));
+                                res += (char)((int.Parse(str.Substring(++j + i, Math.Abs(j))) + (int)'a') / (int)cryptKey.Offset);
                             }
                             else if (cryptKey.SeporetorPositions.ToString() == "b")
                             {
@@ -44,7 +44,7 @@ namespace tempWinForms
 
                                 while (++j + i < str.Length && _numbers.Contains(str[j + i])) { }
 
-                                res += (char)int.Parse(str.Substring((i + 1), j - 1));
+                                res += (char)((int.Parse(str.Substring((i + 1), j - 1)) + (int)'b') / (int)cryptKey.Offset);
                             }
                         }
 
@@ -88,11 +88,11 @@ namespace tempWinForms
                     {
                         res += cryptKey.Seporetor;
 
-                        res += (int)str[i + j];
+                        res +=( (int)str[i + j] * (int)cryptKey.Offset - (int)'b');
                     }
                     else if (cryptKey.SeporetorPositions.ToString() == "a")
                     {
-                        res += (int)str[i + j];
+                        res += ((int)str[i + j] * (int)cryptKey.Offset - (int)'a');
 
                         res += cryptKey.Seporetor;
                     }
@@ -108,7 +108,7 @@ namespace tempWinForms
         {
             public override string ToString()
             {
-                char[] temp = { Border, Seporetor, SeporetorPositions.ToString().ToCharArray()[0], Border };
+                char[] temp = { Border, Seporetor, SeporetorPositions.ToString().ToCharArray()[0], Offset };
 
                 return new string(temp);
             }
@@ -120,6 +120,8 @@ namespace tempWinForms
                 _seporetor = GenerateRandomChar(random, _borders.Concat(_numbers).ToArray());
 
                 _seporetorPosition = new SeporetorPositions(random);
+
+                _offset = GenerateRandomChar( random, _borders.Concat(_numbers).ToArray());
             }
 
             public CryptKey(string cryptKey)
@@ -132,27 +134,35 @@ namespace tempWinForms
                 _seporetor = cryptKey[1];
 
                 _seporetorPosition = new SeporetorPositions(cryptKey[2]);
+
+                _offset = cryptKey[3];
             }
 
             public static bool IsMyBorder(char border) => _borders.Contains(border);
 
-            private char _border;
+            private readonly char _border;
 
-            private char _seporetor;
+            private readonly char _seporetor;
 
-            private SeporetorPositions _seporetorPosition;
+            private readonly SeporetorPositions _seporetorPosition;
 
-            public char Border { get => _border; }
-            public char Seporetor { get => _seporetor; }
-            public SeporetorPositions SeporetorPositions { get => _seporetorPosition; }
+            private readonly char _offset;
 
-        };
+            public char Border => _border;
+            public char Seporetor  => _seporetor;
+            public SeporetorPositions SeporetorPositions => _seporetorPosition;
+            public char Offset => _offset;
+        }
+
+        // PseudoCryptKey
+
+
 
         class SeporetorPositions
         {
             public SeporetorPositions(Random random)
             {
-                SeporPosition = random.Next(0, 2) == 1 ? SeporetorPosition.a : SeporetorPosition.b;
+                SeporPosition = random.Next(0, 101) % 2 == 1 ? SeporetorPosition.a : SeporetorPosition.b;
             }
 
             public SeporetorPositions(char seporetorPosition)
@@ -200,7 +210,6 @@ namespace tempWinForms
         private static char GenerateRandomChar(Random random, char[] badValues)
         {
             char ch;
-
             do
             {
                 ch = (char)random.Next(32, 126);
